@@ -4,7 +4,8 @@ import math
 from typing import SupportsFloat
 
 from cereal import car, log
-from common.numpy_fast import clip
+from common.filter_simple import FirstOrderFilter
+from common.numpy_fast import clip, mean
 from common.realtime import sec_since_boot, config_realtime_process, Priority, Ratekeeper, DT_CTRL
 from common.profiler import Profiler
 from common.params import Params, put_nonblocking
@@ -198,6 +199,7 @@ class Controls:
     self.desired_curvature_rate = 0.0
     self.experimental_mode = False
     self.v_cruise_helper = VCruiseHelper(self.CP)
+    self.k_mean = FirstOrderFilter(0., 20, DT_CTRL)
 
     self.reverse_acc_change = False
 
@@ -503,7 +505,7 @@ class Controls:
   def state_transition(self, CS):
     """Compute conditional state transitions and execute actions on state transitions"""
 
-    self.v_cruise_helper.update_v_cruise(CS, self.enabled_long, self.is_metric, self.reverse_acc_change)
+    self.v_cruise_helper.update_v_cruise(CS, self.enabled_long, self.is_metric, self.reverse_acc_change, self.sm)
 
     # decrement the soft disable timer at every step, as it's reset on
     # entrance in SOFT_DISABLING state
@@ -612,6 +614,13 @@ class Controls:
     lat_plan = self.sm['lateralPlan']
     long_plan = self.sm['longitudinalPlan']
 
+    if self.sm.updated['lateralPlan'] and len(lat_plan.curvatures) > 0:
+      k_mean = mean(lat_plan.curvatures)
+      if abs(k_mean) > abs(self.k_mean.x):
+        self.k_mean.x = k_mean
+      else:
+        self.k_mean.update(k_mean)
+
     CC = car.CarControl.new_message()
     CC.enabled = self.enabled
 
@@ -654,7 +663,7 @@ class Controls:
                                                                                        lat_plan.curvatureRates)
       actuators.steer, actuators.steeringAngleDeg, lac_log = self.LaC.update(CC.latActive, CS, self.VM, lp,
                                                                              self.last_actuators, self.steer_limited, self.desired_curvature,
-                                                                             self.desired_curvature_rate, self.sm['liveLocationKalman'])
+                                                                             self.desired_curvature_rate, self.sm['liveLocationKalman'], mean_curvature=self.k_mean.x)
       actuators.curvature = self.desired_curvature
     else:
       lac_log = log.ControlsState.LateralDebugState.new_message()
