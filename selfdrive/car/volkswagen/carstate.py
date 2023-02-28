@@ -249,6 +249,12 @@ class CarState(CarStateBase):
     # Update ACC radar status.
     self.acc_type = 0
 
+    # Update ACC setpoint. When the setpoint reads as 255, the driver has not
+    # yet established an ACC setpoint, so treat it as zero.
+    ret.cruiseState.speed = (pt_cp.vl["Motor_2"]['Soll_Geschwindigkeit_bei_GRA_Be'] * CV.KPH_TO_MS)
+    if ret.cruiseState.speed > 70:  # 255 kph in m/s == no current setpoint
+      ret.cruiseState.speed = 0
+
     if bool(pt_cp.vl["Motor_5"]["GRA_Hauptschalter"]) and ret.cruiseState.speed != 0:
       self.pqAvailable = True
     if not bool(pt_cp.vl["Motor_5"]["GRA_Hauptschalter"]):
@@ -261,12 +267,6 @@ class CarState(CarStateBase):
 
     ret.cruiseState.available = self.pqAvailable
     ret.cruiseState.enabled = self.pqEnabled
-
-    # Update ACC setpoint. When the setpoint reads as 255, the driver has not
-    # yet established an ACC setpoint, so treat it as zero.
-    ret.cruiseState.speed = (pt_cp.vl["Motor_2"]['Soll_Geschwindigkeit_bei_GRA_Be'] * CV.KPH_TO_MS)
-    if ret.cruiseState.speed > 70:  # 255 kph in m/s == no current setpoint
-      ret.cruiseState.speed = 0
 
     # Update control button states for turn signals and ACC controls.
     self.buttonStates["accelCruise"] = bool(pt_cp.vl["GRA_Neu"]["GRA_Up_kurz"])
