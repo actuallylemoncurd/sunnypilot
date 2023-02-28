@@ -253,9 +253,10 @@ class CarState(CarStateBase):
       self.pqAvailable = True
     if not bool(pt_cp.vl["Motor_5"]["GRA_Hauptschalter"]):
       self.pqAvailable = False
+      self.pqEnabled = False
     if pt_cp.vl["Motor_2"]["GRA_Status"] in (1, 2) and self.pqAvailable:
       self.pqEnabled = True
-    if not pt_cp.vl["Motor_2"]["GRA_Status"] in (1, 2) or not self.pqAvailable:
+    if not pt_cp.vl["Motor_2"]["GRA_Status"] in (1, 2):
       self.pqEnabled = False
 
     ret.cruiseState.available = self.pqAvailable
