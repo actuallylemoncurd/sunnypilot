@@ -16,6 +16,8 @@ class CarState(CarStateBase):
     self.upscale_lead_car_signal = False
     self.buttonStates = BUTTON_STATES.copy()
     self.buttonStatesPrev = BUTTON_STATES.copy()
+    self.pqAvailable = False
+    self.pqEnabled = False
 
   def create_button_events(self, pt_cp, buttons):
     button_events = []
@@ -247,8 +249,6 @@ class CarState(CarStateBase):
     # Update ACC radar status.
     self.acc_type = 0
 
-    self.pqAvailable = False
-    self.pqEnabled = False
     if bool(pt_cp.vl["Motor_5"]["GRA_Hauptschalter"]) and ret.cruiseState.speed != 0:
       self.pqAvailable = True
     if not bool(pt_cp.vl["Motor_5"]["GRA_Hauptschalter"]):
