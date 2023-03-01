@@ -16,7 +16,6 @@ class CarState(CarStateBase):
     self.upscale_lead_car_signal = False
     self.buttonStates = BUTTON_STATES.copy()
     self.buttonStatesPrev = BUTTON_STATES.copy()
-    self.faultCounter = 0
 
   def create_button_events(self, pt_cp, buttons):
     button_events = []
@@ -254,11 +253,7 @@ class CarState(CarStateBase):
     if ret.cruiseState.speed > 70:  # 255 kph in m/s == no current setpoint
       ret.cruiseState.speed = 0
 
-    if hca_status in ("DISABLED", "FAULT") or self.faultCounter >= 1:
-      self.faultCounter = self.faultCounter + 1
-      if self.faultCounter >= 110: #150 = 1.5 seconds
-        self.faultCounter = 0
-    ret.cruiseState.available = bool(pt_cp.vl["Motor_5"]["GRA_Hauptschalter"]) and ret.cruiseState.speed != 0 and self.faultCounter == 0
+    ret.cruiseState.available = bool(pt_cp.vl["Motor_5"]["GRA_Hauptschalter"]) and ret.cruiseState.speed != 0
     ret.cruiseState.enabled = pt_cp.vl["Motor_2"]["GRA_Status"] in (1, 2) and ret.cruiseState.available
 
     # Update control button states for turn signals and ACC controls.
