@@ -28,12 +28,12 @@ class CarInterface(CarInterfaceBase):
   
   @staticmethod
   def torque_from_lateral_accel_passat_nms(lateral_accel_value, torque_params, lateral_accel_error, lateral_accel_deadzone, friction_compensation, v_ego, g_lat_accel, lateral_jerk_desired):
-    ANGLE_COEF = 0.02874076
-    ANGLE_COEF2 = 0.13532990
-    SPEED_OFFSET = 39.99999842
-    SIGMOID_COEF_RIGHT = 0.496
-    SIGMOID_COEF_LEFT = 0.496
-    SPEED_COEF = 0.01000000
+    ANGLE_COEF = 0.07067075
+    ANGLE_COEF2 = 0.17350215
+    SPEED_OFFSET = -0.44401489
+    SIGMOID_COEF_RIGHT = 0.38695564
+    SIGMOID_COEF_LEFT = 0.45557294
+    SPEED_COEF = 0.25193721
     x = ANGLE_COEF * (lateral_accel_value) * (40.23 / (max(0.2,v_ego + SPEED_OFFSET))**SPEED_COEF)
     sigmoid = erf(x)
     out = ((SIGMOID_COEF_RIGHT if lateral_accel_value < 0. else SIGMOID_COEF_LEFT) * sigmoid) + ANGLE_COEF2 * lateral_accel_value
@@ -157,7 +157,7 @@ class CarInterface(CarInterfaceBase):
       ret.minEnableSpeed = 20 * CV.KPH_TO_MS  # ACC "basic", no FtS
       ret.steerActuatorDelay = 0.2
       CarInterfaceBase.configure_torque_tune(candidate, ret.lateralTuning)
-      ret.lateralTuning.torque.kf = 1.20
+      ret.lateralTuning.torque.kf = 1.0  # lat_accel replacement value! tune here! increase for sharper cut in / inner turn hug
 
     elif candidate == CAR.POLO_MK6:
       ret.mass = 1230 + STD_CARGO_KG
