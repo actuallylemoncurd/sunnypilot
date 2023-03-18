@@ -56,6 +56,5 @@ for msg in CAN_MSGS:
         msg = msg.as_builder()
     sendcan.send(msg.to_bytes())
     rk.keep_time()
-    print("Bus "+msg.src+" data: addr: "+msg.address+" dat: "+ msg.dat)
 
 print("replay done.")
