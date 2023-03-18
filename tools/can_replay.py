@@ -31,13 +31,10 @@ def can_capnp_to_can_list(can, src_filter=1):
     if src_filter is None or msg.src in src_filter:
       if msg.address in ACC_GRA:
         ret.append((msg.address, msg.busTime, msg.dat, 2))
-        print("Bus 2 data: addr: "+msg.address+" dat: "+ msg.dat)
       if msg.address in GRA_Neu:
         ret.append((msg.address, msg.busTime, msg.dat, 1))
-        print("Bus 1 data: addr: "+msg.address+" dat: "+ msg.dat)
       else:
         ret.append((msg.address, msg.busTime, msg.dat, 0))
-        print("Bus 0 data: addr: "+msg.address+" dat: "+ msg.dat)
       #ret.append((msg.address, msg.busTime, msg.dat, msg.src))
   return ret
 
@@ -59,5 +56,6 @@ for msg in CAN_MSGS:
         msg = msg.as_builder()
     sendcan.send(msg.to_bytes())
     rk.keep_time()
+    print("Bus "+msg.src+" data: addr: "+msg.address+" dat: "+ msg.dat)
 
 print("replay done.")
