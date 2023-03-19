@@ -25,7 +25,7 @@ def can_list_to_can_capnp(can_msgs, msgtype='can'):
     cc.src = can_msg[3]
   return dat
 
-def can_capnp_to_can_list(can, src_filter=1):
+def can_capnp_to_can_list(can, src_filter=None):
   ret = []
   for msg in can:
     if src_filter is None or msg.src in src_filter:
