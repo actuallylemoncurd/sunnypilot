@@ -1,3 +1,3 @@
-[submodule "panda-special"]
-	path = panda-special
+[submodule "panda"]
+	path = panda
 	url = https://github.com/dkiiv/panda-special
