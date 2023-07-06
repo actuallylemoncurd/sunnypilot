@@ -253,7 +253,11 @@ class CarState(CarStateBase):
     if ret.cruiseState.speed > 70:  # 255 kph in m/s == no current setpoint
       ret.cruiseState.speed = 0
 
-    ret.cruiseState.available = bool(pt_cp.vl["Motor_5"]["GRA_Hauptschalter"]) and ret.cruiseState.speed != 0 and hca_status not in ("DISABLED", "FAULT")
+    if (bool(pt_cp.vl["GRA_Neu"]["GRA_Abbrechen"]) and ret.brakePressed):
+      ret.cruiseState.available = False
+    else:
+      if pt_cp.vl["Motor_2"]["GRA_Status"] in (1, 2) and hca_status not in ("DISABLED", "FAULT"):
+        ret.cruiseState.available = True
     ret.cruiseState.enabled = pt_cp.vl["Motor_2"]["GRA_Status"] in (1, 2) and ret.cruiseState.available
 
     # Update control button states for turn signals and ACC controls.
