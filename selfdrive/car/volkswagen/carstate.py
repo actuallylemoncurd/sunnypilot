@@ -253,7 +253,7 @@ class CarState(CarStateBase):
     if ret.cruiseState.speed > 70:  # 255 kph in m/s == no current setpoint
       ret.cruiseState.speed = 0
 
-    if (bool(pt_cp.vl["GRA_Neu"]["GRA_Abbrechen"]) and ret.brakePressed):
+    if (bool(pt_cp.vl["GRA_Neu"]["GRA_Abbrechen"]) and ret.brakePressed) or ret.cruiseState.speed == 0:
       ret.cruiseState.available = False
     else:
       if pt_cp.vl["Motor_2"]["GRA_Status"] in (1, 2) and hca_status not in ("DISABLED", "FAULT"):
